@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  name       String
+  picture    String?
+  googleId   String   @unique
+
+  createdAt  DateTime @default(now())
+
+  watchlists Watchlist[]
+}
+model Movie {
+  id        String @id @default(uuid())
+
+  imdbId    String @unique
+  title     String
+  year      String
+  type      String
+  cast      String
+  genre     String
+  director  String
+  writer    String
+  actors    String
+  plot      String
+  country   String
+  poster    String?
+  rating    Decimal
+
+  watchlists Watchlist[]
+}
+
+model Watchlist {
+  id String @id @default(uuid())
+
+  userId String
+  movieId String
+
+  status String
+
+  user User @relation(fields:[userId], references:[id])
+  movie Movie @relation(fields:[movieId], references:[id])
+
+  createdAt DateTime @default(now())
+}
