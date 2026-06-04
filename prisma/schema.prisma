@@ -26,21 +26,28 @@ model User {
   watchlists Watchlist[]
 }
 model Movie {
-  id        String @id @default(uuid())
+  id        String   @id @default(uuid())
 
-  imdbId    String @unique
+  imdbID   String   @unique
+
   title     String
   year      String
   type      String
-  cast      String
-  genre     String
-  director  String
-  writer    String
-  actors    String
-  plot      String
-  country   String
+
+  cast      String?
+  genre     String?
+  director  String?
+  writer    String?
+  actors    String?
+  plot      String?
+  country   String?
+
   poster    String?
-  rating    Decimal
+
+  imdbRating Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   watchlists Watchlist[]
 }
@@ -48,13 +55,22 @@ model Movie {
 model Watchlist {
   id String @id @default(uuid())
 
-  userId String
+  userId  String
   movieId String
 
-  status String
+  status WatchlistStatus @default(PLAN_TO_WATCH)
 
-  user User @relation(fields:[userId], references:[id])
-  movie Movie @relation(fields:[movieId], references:[id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+
+  @@unique([userId, movieId])
+}
+
+enum WatchlistStatus {
+  PLAN_TO_WATCH
+  WATCHING
+  COMPLETED
+  DROPPED
 }
