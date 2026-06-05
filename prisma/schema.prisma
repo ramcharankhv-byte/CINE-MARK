@@ -54,23 +54,22 @@ model Movie {
 
 model Watchlist {
   id String @id @default(uuid())
+  name String 
 
   userId  String
-  movieId String
+ 
 
   status WatchlistStatus @default(PLAN_TO_WATCH)
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movies Movie[] 
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, movieId])
+  @@unique([userId])
 }
 
 enum WatchlistStatus {
   PLAN_TO_WATCH
-  WATCHING
   COMPLETED
-  DROPPED
 }
