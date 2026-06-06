@@ -1,8 +1,6 @@
-import ApiError from "../utils/api-error.js";
-
-export const validate = (schema) => {
+export const validate = (schema, source = "body") => {
   return (req, res, next) => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(req[source]);
 
     if (!result.success) {
       throw new ApiError(400, result.error.issues[0].message);

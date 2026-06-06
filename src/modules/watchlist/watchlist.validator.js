@@ -12,10 +12,11 @@ export const addMovieSchema = z.object({
   id: movieIdSchema,
 });
 
-export const playlistParamsSchema = z.object({
-  playlistId: z.uuid(),
+export const searchPlaylistSchema = z.object({
+  query: z.string().trim().min(1).max(100),
 });
 
-export const movieParamsSchema = z.object({
-  id: movieIdSchema,
+export const watchlistMovieParamsSchema = z.object({
+  watchlistId: z.uuid(),
+  movieId: z.uuid(), // or imdb schema
 });

@@ -7,9 +7,9 @@ export const searchMovieSchema = z.object({
 });
 
 export const movieDetailsSchema = z.object({
-  imdbId: imdbIdSchema,
+  imdbID: imdbIdSchema,
 });
 
 export const movieParamsSchema = z.object({
-  imdbId: imdbIdSchema,
+  imdbID: imdbIdSchema,
 });

@@ -5,18 +5,18 @@ import {
   googleLogin,
   refreshCookies,
   logout,
-} from "../controllers/auth/auth.controller.js";
+} from "../auth/auth.controller.js";
 
 import { verifyJwt } from "../middleware/auth.middleware.js";
 
-const router = Router();
+const authRouter = Router();
 
-router.post("/google/signup", googleSignup);
+authRouter.post("/google/signup", googleSignup);
 
-router.post("/google/login", googleLogin);
+authRouter.post("/google/login", googleLogin);
 
-router.post("/refresh", refreshCookies);
+authRouter.post("/refresh", refreshCookies);
 
-router.post("/logout", verifyJwt, logout);
+authRouter.post("/logout", verifyJwt, logout);
 
-export default router;
+export default authRouter;
