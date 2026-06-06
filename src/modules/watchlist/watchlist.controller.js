@@ -1,10 +1,10 @@
 import { prisma } from "../../config/db.js";
 
-import asyncHandler from "../../utils/asynchandler.js";
+import { asyncHandler } from "../../utils/asynchandler.js";
 
-import ApiError from "../../utils/api-error.js";
+import { ApiError } from "../../utils/api-error.js";
 
-import ApiResponse from "../../utils/api-response.js";
+import { ApiResponse } from "../../utils/api-response.js";
 
 export const createWatchList = asyncHandler(async (req, res) => {
   const { name } = req.body;

@@ -1,40 +1,46 @@
 import express from "express";
 import dotenv from "dotenv";
 
-dotenv.config();
+import cookieParser from "cookie-parser";
+import cors from "cors";
 
-import { connectDB, disconnectDB, prisma } from "./config/db.js";
+import authRouter from "./modules/auth/auth.routes.js";
+import movieRouter from "./modules/movie/movie.route.js";
+import watchlistRouter from "./modules/watchlist/watchlist.route.js";
 
 const app = express();
-connectDB();
 
-const port = process.env.PORT;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
+app.use(cookieParser());
 
-const server = app.listen(port || 5001, "0.0.0.0", () => {
-  console.log(`Server running on PORT ${port}`);
+// Parse CORS_ORIGIN environment variable (comma-separated for multiple origins)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+  : ["http://localhost:3000"];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
 });
 
-// Handle unhandled promise rejections (e.g., database connection errors)
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Rejection:", err);
-  server.close(async () => {
-    await disconnectDB();
-    process.exit(1);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/watchlist", watchlistRouter);
+app.use("/api/v1/movie", movieRouter);
+
+app.use((err, req, res, next) => {
+  return res.status(err.statusCode || 500).json({
+    success: err.success || false,
+    message: err.message || "Internal Server Error",
+    errors: err.errors || [],
   });
 });
 
-// Handle uncaught exceptions
-process.on("uncaughtException", async (err) => {
-  console.error("Uncaught Exception:", err);
-  await disconnectDB();
-  process.exit(1);
-});
-
-// Graceful shutdown
-process.on("SIGTERM", async () => {
-  console.log("SIGTERM received, shutting down gracefully");
-  server.close(async () => {
-    await disconnectDB();
-    process.exit(0);
-  });
-});
+export default app;

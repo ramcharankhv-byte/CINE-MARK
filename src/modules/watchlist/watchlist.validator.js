@@ -12,6 +12,10 @@ export const addMovieSchema = z.object({
   id: movieIdSchema,
 });
 
+export const playlistParamsSchema = z.object({
+  playlistId: playlistIdSchema,
+});
+
 export const searchPlaylistSchema = z.object({
   query: z.string().trim().min(1).max(100),
 });

@@ -7,7 +7,7 @@ import {
   logout,
 } from "../auth/auth.controller.js";
 
-import { verifyJwt } from "../middleware/auth.middleware.js";
+import { verifyJwt } from "./auth.middleware.js";
 
 const authRouter = Router();
 

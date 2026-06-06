@@ -17,6 +17,7 @@ import {
 import {
   createPlaylistSchema,
   searchPlaylistSchema,
+  playlistParamsSchema,
   watchlistMovieParamsSchema,
 } from "./watchlist.validator.js";
 

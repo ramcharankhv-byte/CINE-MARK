@@ -1,10 +1,10 @@
 import { prisma } from "../../config/db.js";
 import { OAuth2Client } from "google-auth-library";
-import asyncHandler from "../../utils/asynchandler.js";
+import { asyncHandler } from "../../utils/asynchandler.js";
 
-import ApiError from "../../utils/api-error.js";
+import { ApiError } from "../../utils/api-error.js";
 
-import ApiResponse from "../../utils/api-response.js";
+import { ApiResponse } from "../../utils/api-response.js";
 
 async function searchMoviesFromOMDB(name) {
   const apiUrl = `https://omdbapi.com/?apikey=${process.env.API_KEY}&s=${name}`;
