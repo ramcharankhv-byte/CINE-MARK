@@ -24,7 +24,12 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
     "nodemon": "^3.1.14",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
     "prisma": "^6.19.3",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "pino-pretty": "^13.1.3"
   }
 }
