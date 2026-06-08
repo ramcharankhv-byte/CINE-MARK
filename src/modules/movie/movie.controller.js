@@ -6,7 +6,7 @@ import { ApiError } from "../../utils/api-error.js";
 
 import { ApiResponse } from "../../utils/api-response.js";
 
-import { searchMoviesFromOMDB, addMovie } from "./movie.services.js";
+import { searchMoviesFromOMDB, addMovie, findMovie } from "./movie.services.js";
 
 export const searchMovie = asyncHandler(async (req, res) => {
   const { query } = req.query;
@@ -46,11 +46,7 @@ export const searchMovie = asyncHandler(async (req, res) => {
 export const getMovie = asyncHandler(async (req, res) => {
   const { imdbID } = req.params;
 
-  let movie = await prisma.movie.findFirst({
-    where: {
-      imdbID: imdbID,
-    },
-  });
+  let movie = await findMovie(imdbID);
 
   if (!movie) {
     movie = await addMovie(imdbID);

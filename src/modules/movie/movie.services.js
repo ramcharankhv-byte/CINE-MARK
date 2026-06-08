@@ -50,3 +50,13 @@ export async function addMovie(imdbID) {
 
   return movie;
 }
+
+export const findMovie = async (imdbID) => {
+  const movie = prisma.movie.findFirst({
+    where: {
+      imdbID: imdbID,
+    },
+  });
+
+  return movie;
+};
