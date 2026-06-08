@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "@upstash/redis": "^1.38.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -27,6 +28,7 @@
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "prisma": "^6.19.3",
+    "redis": "^6.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
