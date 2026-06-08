@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import { secureHeaders } from "./config/security.js";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -14,6 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+app.use(secureHeaders);
 
 // Parse CORS_ORIGIN environment variable (comma-separated for multiple origins)
 const allowedOrigins = process.env.CORS_ORIGIN
