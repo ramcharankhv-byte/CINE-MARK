@@ -6,6 +6,8 @@ This folder contains **8 comprehensive technical documents** analyzing the CINE-
 
 **Total Content:** ~250KB | **Reading Time:** 8-12 hours | **Target Audience:** Backend developers, technical interviewers, future self
 
+** SPECIAL NOTE : ALL THE FILES AND DETAILS ARE THERE IN THE REPORT FOLDER IN SRC , THIS FILE IS FOR REFERENCE THANK YOU**
+
 ---
 
 ## 📚 Document Breakdown
