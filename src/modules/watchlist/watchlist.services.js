@@ -94,28 +94,69 @@ export const removeMovieFromWatchlist = async (
     },
   });
 };
+export const getAllWatchlists = async (userId, page = 1, limit = 10) => {
+  // 1. Sanitize variables and calculate offset
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.max(1, limit);
+  const skip = (safePage - 1) * safeLimit;
 
-export const getAllWatchlists = async (userId) => {
-  return prisma.watchlist.findMany({
-    where: {
-      userId,
+  // 2. Fetch data and count in parallel
+  const [watchlists, totalItems] = await Promise.all([
+    prisma.watchlist.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      skip: skip,
+      take: safeLimit,
+    }),
+    prisma.watchlist.count({
+      where: { userId },
+    }),
+  ]);
+
+  // 3. Construct total pages and meta object
+  const totalPages = Math.ceil(totalItems / safeLimit);
+
+  return {
+    watchlists,
+    meta: {
+      currentPage: safePage,
+      limit: safeLimit,
+      totalItems,
+      totalPages,
+      hasNextPage: safePage < totalPages,
+      hasPreviousPage: safePage > 1,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  };
 };
 
-export const getWatchlist = async (watchlistId, userId) => {
-  const watchlist = await prisma.watchlist.findUnique({
-    where: {
-      id: watchlistId,
-    },
-    include: {
-      movies: true,
-    },
-  });
+export const getWatchlist = async (
+  watchlistId,
+  userId,
+  page = 1,
+  limit = 10,
+) => {
+  const safePage = Math.max(1, page);
+  const safeLimit = Math.max(1, limit);
+  const skip = (safePage - 1) * safeLimit;
 
+  // 1. Fetch watchlist basic info along with sliced movies, and count movies in parallel
+  const [watchlist, totalMovies] = await Promise.all([
+    prisma.watchlist.findUnique({
+      where: { id: watchlistId },
+      include: {
+        movies: {
+          skip: skip,
+          take: safeLimit,
+          // Add orderBy here if you want movies sorted by added date
+        },
+      },
+    }),
+    prisma.movie.count({
+      where: { watchlistId: watchlistId }, // Assumes movie model has watchlistId relation
+    }),
+  ]);
+
+  // 2. Route Protection Checks
   if (!watchlist) {
     throw new ApiError(404, "Watchlist not found");
   }
@@ -124,7 +165,26 @@ export const getWatchlist = async (watchlistId, userId) => {
     throw new ApiError(403, "Unauthorized");
   }
 
-  return watchlist;
+  // 3. Calculate pagination metadata
+  const totalPages = Math.ceil(totalMovies / safeLimit);
+
+  return {
+    watchlistInfo: {
+      id: watchlist.id,
+      name: watchlist.name,
+      userId: watchlist.userId,
+      createdAt: watchlist.createdAt,
+    },
+    movies: watchlist.movies, // Contains only the 10 movies for this specific page
+    meta: {
+      currentPage: safePage,
+      limit: safeLimit,
+      totalItems: totalMovies,
+      totalPages,
+      hasNextPage: safePage < totalPages,
+      hasPreviousPage: safePage > 1,
+    },
+  };
 };
 
 export const searchWatchlists = async (query, userId) => {

@@ -2,7 +2,7 @@ import { prisma } from "../../config/db.js";
 import { redisClient } from "../../config/redis.js";
 import { ApiError } from "../../utils/api-error.js";
 
-export async function searchMoviesFromOMDB(query) {
+export async function searchMoviesFromOMDB(query, page = 1) {
   const cacheKey = `search:${query}`;
 
   // 1. Check cache
@@ -17,7 +17,7 @@ export async function searchMoviesFromOMDB(query) {
   console.log("Cache Miss");
 
   // 2. Fetch actual data
-  const apiUrl = `https://omdbapi.com/?apikey=${process.env.API_KEY}&s=${query}`;
+  const apiUrl = `https://omdbapi.com/?apikey=${process.env.API_KEY}&s=${query}&page=${page}`;
   const response = await fetch(apiUrl);
 
   if (!response.ok) {
