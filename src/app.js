@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { secureHeaders } from "./config/security.js";
 import { limiter } from "./middleware/rate-limiter.js";
 import { httpLogger } from "./middleware/logger.middleware.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -33,6 +35,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
   res.send("Hello World");
