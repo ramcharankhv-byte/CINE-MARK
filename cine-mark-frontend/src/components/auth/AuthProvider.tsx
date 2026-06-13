@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
 interface User {
   id: string;
@@ -19,38 +20,62 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- AUTH WALL BYPASS START ---
-const MOCK_USER: User = {
-  id: "test-user-123",
-  email: "test@example.com",
-  name: "Test User",
-  picture: "https://via.placeholder.com/150",
-};
-// --- AUTH WALL BYPASS END ---
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // --- AUTH WALL BYPASS START ---
-    // Automatically log in as the mock user without hitting the backend
-    setTimeout(() => {
-      setUser(MOCK_USER);
+  const fetchUser = async () => {
+    try {
+      const response = await api.get("/auth/me");
+      if (response.data?.data) {
+        setUser(response.data.data);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
       setIsLoading(false);
-    }, 500);
-    // --- AUTH WALL BYPASS END ---
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
   }, []);
 
   const login = async (idToken: string) => {
-    setUser(MOCK_USER);
-    queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
+    try {
+      await api.post("/auth/google/login", { idToken });
+      await fetchUser();
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        // User doesn't exist, automatically sign them up!
+        try {
+          await api.post("/auth/google/signup", { idToken });
+          await fetchUser();
+          queryClient.invalidateQueries({ queryKey: ["auth"] });
+          return;
+        } catch (signupError) {
+          console.error("Signup failed:", signupError);
+          throw signupError;
+        }
+      }
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
   const logout = async () => {
-    setUser(null);
-    queryClient.clear();
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setUser(null);
+      queryClient.clear();
+    }
   };
 
   return (

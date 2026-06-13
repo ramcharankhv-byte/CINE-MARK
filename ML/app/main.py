@@ -4,10 +4,10 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 # mesh: gotta load the env file BEFORE groq_stuff imports the keys
-load_dotenv("../.env")
+load_dotenv("../../.env")
 
-from groq_stuff import get_groq_response
-from recommendation import get_recommendations_for_user
+from app.groq_stuff import get_groq_response
+from app.recommendation import get_recommendations_for_user
 
 app = FastAPI()
 
@@ -22,7 +22,7 @@ app.add_middleware(
 
 from typing import List, Optional
 import uuid
-from db_stuff import save_conversation_turn, get_recent_sessions, get_session_history, delete_session
+from app.db_stuff import save_conversation_turn, get_recent_sessions, get_session_history, delete_session
 
 class ChatRequest(BaseModel):
     query: str

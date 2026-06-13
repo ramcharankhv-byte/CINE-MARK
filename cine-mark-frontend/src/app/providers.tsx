@@ -11,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <GoogleOAuthProvider
-      clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}
+      clientId={"956122022786-hfpt001gpdj3ntemggfpdi8f3dgcmvab.apps.googleusercontent.com"}
     >
       <QueryClientProvider client={queryClient}>
         <NextThemesProvider
