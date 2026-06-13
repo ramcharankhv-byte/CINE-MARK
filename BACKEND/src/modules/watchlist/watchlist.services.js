@@ -6,7 +6,6 @@ export const createWatchlist = async (name, userId) => {
     data: {
       name,
       userId,
-      status: "PLAN_TO_WATCH",
     },
   });
 };

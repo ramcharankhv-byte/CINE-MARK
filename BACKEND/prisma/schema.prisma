@@ -58,18 +58,10 @@ model Watchlist {
 
   userId  String
  
-
-  status WatchlistStatus @default(PLAN_TO_WATCH)
-
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   movies Movie[] 
 
   createdAt DateTime @default(now())
 
   @@unique([userId])
-}
-
-enum WatchlistStatus {
-  PLAN_TO_WATCH
-  COMPLETED
 }
