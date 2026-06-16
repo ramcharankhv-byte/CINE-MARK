@@ -1,19 +1,33 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
 
 import app from "./app.js";
 
 import { logger } from "./config/logger.js";
 
-dotenv.config();
+const requiredEnv = [
+  "DATABASE_URL",
+  "GOOGLE_CLIENT_ID",
+  "JWT_SECRET",
+  "API_KEY",
+  "UPSTASH_REDIS_REST_URL",
+  "UPSTASH_REDIS_REST_TOKEN",
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    logger.error(`Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+}
 
 import { connectDB, disconnectDB, prisma } from "./config/db.js";
 
 connectDB();
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 
-const server = app.listen(port || 5001, "0.0.0.0", () => {
+const server = app.listen(port, "0.0.0.0", () => {
   logger.info(`Server running on PORT ${port}`);
 });
 

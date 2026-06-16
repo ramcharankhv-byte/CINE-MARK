@@ -1,1 +1,59 @@
-<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="95" fill="#0f172a" stroke="#1e293b" stroke-width="2"/>
+  
+  <!-- Film reel/cinema concept -->
+  <circle cx="100" cy="100" r="75" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.3"/>
+  
+  <!-- Central AI core (glowing center) -->
+  <circle cx="100" cy="100" r="20" fill="#60a5fa" filter="url(#glow)"/>
+  <circle cx="100" cy="100" r="20" fill="none" stroke="#93c5fd" stroke-width="1" opacity="0.6"/>
+  
+  <!-- Cinema film strips around -->
+  <g stroke="#3b82f6" stroke-width="2" fill="none">
+    <!-- Top film strip -->
+    <rect x="70" y="45" width="8" height="12" fill="#3b82f6"/>
+    <rect x="82" y="45" width="8" height="12" fill="#3b82f6"/>
+    <rect x="94" y="45" width="8" height="12" fill="#3b82f6"/>
+    <rect x="106" y="45" width="8" height="12" fill="#3b82f6"/>
+    <rect x="118" y="45" width="8" height="12" fill="#3b82f6"/>
+    
+    <!-- Bottom film strip -->
+    <rect x="70" y="143" width="8" height="12" fill="#3b82f6"/>
+    <rect x="82" y="143" width="8" height="12" fill="#3b82f6"/>
+    <rect x="94" y="143" width="8" height="12" fill="#3b82f6"/>
+    <rect x="106" y="143" width="8" height="12" fill="#3b82f6"/>
+    <rect x="118" y="143" width="8" height="12" fill="#3b82f6"/>
+    
+    <!-- Left film strip -->
+    <rect x="45" y="80" width="12" height="8" fill="#3b82f6"/>
+    <rect x="45" y="92" width="12" height="8" fill="#3b82f6"/>
+    <rect x="45" y="104" width="12" height="8" fill="#3b82f6"/>
+    
+    <!-- Right film strip -->
+    <rect x="143" y="80" width="12" height="8" fill="#3b82f6"/>
+    <rect x="143" y="92" width="12" height="8" fill="#3b82f6"/>
+    <rect x="143" y="104" width="12" height="8" fill="#3b82f6"/>
+  </g>
+  
+  <!-- AI neural network connections -->
+  <g stroke="#1e40af" stroke-width="1" opacity="0.5">
+    <line x1="100" y1="100" x2="100" y2="50"/>
+    <line x1="100" y1="100" x2="145" y2="75"/>
+    <line x1="100" y1="100" x2="145" y2="125"/>
+    <line x1="100" y1="100" x2="100" y2="150"/>
+    <line x1="100" y1="100" x2="55" y2="75"/>
+    <line x1="100" y1="100" x2="55" y2="125"/>
+  </g>
+  
+  <!-- Glow effect definition -->
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+</svg>

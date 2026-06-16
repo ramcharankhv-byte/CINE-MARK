@@ -12,9 +12,12 @@ OMDB_KEY = os.getenv("API_KEY", "")
 
 mesh_key_idx = 0
 
+import urllib.parse
+
 def fetch_mesh_omdb(somesh_title):
     try:
-        url = f"http://www.omdbapi.com/?apikey={OMDB_KEY}&t={somesh_title}"
+        safe_title = urllib.parse.quote(somesh_title)
+        url = f"http://www.omdbapi.com/?apikey={OMDB_KEY}&t={safe_title}"
         resp = requests.get(url)
         data = resp.json()
         if data.get("Response") == "True":

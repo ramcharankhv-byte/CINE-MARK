@@ -1,33 +1,33 @@
 "use client";
 
-import { GoogleLogin } from "@react-oauth/google";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { FcGoogle } from "react-icons/fc";
 
 export function GoogleLoginButton() {
-  const { login } = useAuth();
-  const router = useRouter();
+  const handleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      toast.error("Google Login Failed");
+    }
+  };
 
   return (
     <div className="flex justify-center">
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-          if (credentialResponse.credential) {
-            try {
-              await login(credentialResponse.credential);
-              toast.success("Successfully logged in");
-              router.push("/dashboard");
-            } catch (error) {
-              toast.error("Login failed. Please try again.");
-            }
-          }
-        }}
-        onError={() => {
-          toast.error("Google Login Failed");
-        }}
-        useOneTap
-      />
+      <button 
+        onClick={handleLogin}
+        className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded shadow hover:bg-gray-100 transition"
+      >
+        <FcGoogle size={24} />
+        <span className="font-medium">Sign in with Google</span>
+      </button>
     </div>
   );
 }

@@ -1,0 +1,46 @@
+services:
+  # Node.js Express API Backend
+  - type: web
+    name: cine-mark-backend
+    env: node
+    plan: free
+    rootDir: Backend
+    buildCommand: npm install && npx prisma generate
+    startCommand: node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PRISMA_CLIENT_ENGINE_TYPE
+        value: library
+      # These variables will need to be pasted into the Render Dashboard manually for security
+      - key: DATABASE_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+
+  # Python FastAPI ML Engine
+  - type: web
+    name: cine-mark-ml
+    env: python
+    plan: free
+    rootDir: ML
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      # These variables will need to be pasted into the Render Dashboard manually for security
+      - key: GROQ_API_KEYS
+        sync: false
+      - key: UPSTASH_VECTOR_REST_URL
+        sync: false
+      - key: UPSTASH_VECTOR_REST_TOKEN
+        sync: false

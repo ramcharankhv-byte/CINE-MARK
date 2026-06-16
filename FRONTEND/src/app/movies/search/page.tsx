@@ -6,7 +6,8 @@ import { MovieGrid } from "@/components/movies/MovieGrid";
 import { Pagination } from "@/components/common/Pagination";
 import { MovieGridSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
-import { SearchX, Film } from "lucide-react";
+import { SearchX, Film, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Suspense } from "react";
 
@@ -42,7 +43,17 @@ function SearchContent() {
         .delay-150 { animation-delay: 150ms; }
         .delay-200 { animation-delay: 200ms; }
       `}</style>
-      <div className="flex flex-col items-center text-center mt-12 mb-12 fade-in-up">
+      <div className="pt-6 pb-2 fade-in-up">
+        <Button 
+          variant="ghost" 
+          onClick={() => router.back()} 
+          className="text-muted-foreground hover:text-foreground group"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" /> Back
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center text-center mb-12 fade-in-up delay-100">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground mb-4 leading-[1.1]">
           Deep <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary/80 to-purple-400 font-light italic pr-2">Search</span>
         </h1>

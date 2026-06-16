@@ -9,3 +9,7 @@ node_modules
 12-IMPROVEMENTS-ROADMAP.md
 13-LEARNING-SUMMARY.md
 
+
+__pycache__/
+*.pyc
+chroma_storage/

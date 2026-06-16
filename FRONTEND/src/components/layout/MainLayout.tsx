@@ -13,7 +13,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen w-full overflow-hidden relative">
+      <div className="flex h-[100dvh] w-full overflow-hidden relative">
         <div className="absolute inset-0 z-0">
           <ShaderBackground />
         </div>

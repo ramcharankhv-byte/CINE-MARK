@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export function AddToWatchlistModal({ movie, children }: { movie: Movie; children: React.ReactNode }) {
+export function AddToWatchlistModal({ movie, children, onSuccessCallback }: { movie: Movie; children: React.ReactNode; onSuccessCallback?: () => void }) {
   const [open, setOpen] = useState(false);
   const [selectedWatchlist, setSelectedWatchlist] = useState<string>("");
 
@@ -26,6 +26,7 @@ export function AddToWatchlistModal({ movie, children }: { movie: Movie; childre
         onSuccess: () => {
           setOpen(false);
           setSelectedWatchlist("");
+          if (onSuccessCallback) onSuccessCallback();
         },
       }
     );
@@ -50,7 +51,7 @@ export function AddToWatchlistModal({ movie, children }: { movie: Movie; childre
           </div>
         ) : watchlists.length === 0 ? (
           <div className="text-center py-6 text-sm text-muted-foreground">
-            You don't have any watchlists yet. Create one from the Dashboard!
+            You don't have any watchlists yet. Create one from My Watchlists!
           </div>
         ) : (
           <ScrollArea className="max-h-[300px] py-4">

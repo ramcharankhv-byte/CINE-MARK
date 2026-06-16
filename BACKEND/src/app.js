@@ -46,6 +46,7 @@ app.use("/api/v1/watchlist", watchlistRouter);
 app.use("/api/v1/movie", movieRouter);
 
 app.use((err, req, res, next) => {
+  console.error("EXPRESS ERROR:", err);
   return res.status(err.statusCode || 500).json({
     success: err.success || false,
     message: err.message || "Internal Server Error",

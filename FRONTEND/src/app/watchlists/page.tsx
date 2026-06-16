@@ -6,7 +6,8 @@ import { WatchlistForm } from "@/components/watchlists/WatchlistForm";
 import { Pagination } from "@/components/common/Pagination";
 import { WatchlistGridSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
-import { ListVideo, AlertCircle } from "lucide-react";
+import { ListVideo, AlertCircle, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Suspense } from "react";
 
@@ -42,7 +43,17 @@ function WatchlistsContent() {
         .delay-200 { animation-delay: 200ms; }
       `}</style>
 
-      <div className="flex flex-col items-center text-center pt-16 pb-6 fade-in-up">
+      <div className="pt-6 pb-2 fade-in-up">
+        <Button 
+          variant="ghost" 
+          onClick={() => router.back()} 
+          className="text-muted-foreground hover:text-foreground group"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" /> Back
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center text-center pb-6 fade-in-up delay-100">
         <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-foreground mb-4 leading-[1.1]">
           My <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary/80 to-purple-400 font-light italic pr-2">Watchlists</span>
         </h1>

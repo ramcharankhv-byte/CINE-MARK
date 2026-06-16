@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Film, LayoutDashboard, ListVideo, PlusCircle, Search, Settings, LogOut, MessageSquare, ChevronDown, ChevronRight, Sun, Moon, PanelLeft, Trash2 } from "lucide-react";
+import { Film, LayoutDashboard, ListVideo, PlusCircle, Search, Settings, LogOut, MessageSquare, ChevronDown, ChevronRight, Sun, Moon, PanelLeft, Trash2, Check, PencilLine, Download, CheckCircle, Clock } from "lucide-react";
+import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
+  { href: "/home", label: "Home", icon: LayoutDashboard },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/movies/search", label: "Search Movies", icon: Search },
   { href: "/watchlists", label: "My Watchlists", icon: ListVideo },
@@ -36,9 +38,17 @@ export function Sidebar({ className, isCollapsed = false, onToggle }: { classNam
   useEffect(() => {
     const fetchRecent = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/chats/recent");
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: Record<string, string> = {};
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
+        }
+        
+        const res = await fetch(`${process.env.NEXT_PUBLIC_ML_URL || "http://localhost:8000"}/api/chats/recent`, { headers });
         const data = await res.json();
-        setRecentChats(data);
+        if (Array.isArray(data)) {
+          setRecentChats(data);
+        }
       } catch (err) {
         console.error("Failed to fetch recent chats:", err);
       }
@@ -53,7 +63,16 @@ export function Sidebar({ className, isCollapsed = false, onToggle }: { classNam
     setRecentChats(prev => prev.filter(c => c.id !== id));
     
     try {
-      await fetch(`http://localhost:8000/api/chat/${id}`, { method: 'DELETE' });
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = {};
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+      
+      await fetch(`${process.env.NEXT_PUBLIC_ML_URL || "http://localhost:8000"}/api/chat/${id}`, { 
+        method: 'DELETE',
+        headers 
+      });
       if (pathname.includes(`/chat/${id}`)) {
         router.push('/chat');
       }
@@ -94,6 +113,13 @@ export function Sidebar({ className, isCollapsed = false, onToggle }: { classNam
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={(e) => {
+                  // Always force a full page reload for Home to completely wipe chat state and reset the experience
+                  if (item.href === "/home") {
+                    e.preventDefault();
+                    window.location.href = "/home";
+                  }
+                }}
                 className={cn(
                   "flex items-center rounded-lg transition-all hover:text-primary",
                   isActive

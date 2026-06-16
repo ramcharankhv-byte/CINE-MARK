@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabaseClient";
 
 interface User {
   id: string;
@@ -13,20 +14,11 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (idToken: string) => Promise<void>;
+  login: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// --- AUTH WALL BYPASS START ---
-const MOCK_USER: User = {
-  id: "test-user-123",
-  email: "test@example.com",
-  name: "Test User",
-  picture: "https://via.placeholder.com/150",
-};
-// --- AUTH WALL BYPASS END ---
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -34,21 +26,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // --- AUTH WALL BYPASS START ---
-    // Automatically log in as the mock user without hitting the backend
-    setTimeout(() => {
-      setUser(MOCK_USER);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || "",
+          name: session.user.user_metadata?.full_name || "User",
+          picture: session.user.user_metadata?.avatar_url || "",
+        });
+      } else {
+        setUser(null);
+      }
       setIsLoading(false);
-    }, 500);
-    // --- AUTH WALL BYPASS END ---
-  }, []);
+    });
 
-  const login = async (idToken: string) => {
-    setUser(MOCK_USER);
-    queryClient.invalidateQueries({ queryKey: ["auth", "user"] });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email || "",
+          name: session.user.user_metadata?.full_name || "User",
+          picture: session.user.user_metadata?.avatar_url || "",
+        });
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+      queryClient.invalidateQueries({ queryKey: ["auth"] });
+    });
+
+    return () => subscription.unsubscribe();
+  }, [queryClient]);
+
+  const login = async () => {
+    // With Supabase, Google Login automatically redirects, so login logic is handled in the button.
   };
 
   const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     queryClient.clear();
   };

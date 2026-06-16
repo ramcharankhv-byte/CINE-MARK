@@ -13,7 +13,7 @@ export const addMovieSchema = z.object({
 });
 
 export const playlistParamsSchema = z.object({
-  playlistId: playlistIdSchema,
+  watchlistId: playlistIdSchema,
 });
 
 export const searchPlaylistSchema = z.object({
@@ -22,5 +22,5 @@ export const searchPlaylistSchema = z.object({
 
 export const watchlistMovieParamsSchema = z.object({
   watchlistId: z.uuid(),
-  movieId: z.uuid(), // or imdb schema
+  movieId: z.string().regex(/^tt\d+$/),
 });

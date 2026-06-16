@@ -35,7 +35,7 @@ export function WatchlistForm() {
           <input
             type="text"
             className="w-full bg-transparent border-none outline-none text-white placeholder:text-white/30 text-xl font-light px-2 py-4 tracking-wide"
-            placeholder="Name your new watchlist (e.g. Action Movies 2024)..."
+            placeholder="Name your new watchlist..."
             value={name}
             onChange={(e) => setName(e.target.value)}
           />

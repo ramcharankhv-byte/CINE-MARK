@@ -225,7 +225,7 @@ function ShaderCanvas({
 
   useEffect(() => {
     const canvas = canvasRef.current!;
-    const gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
+    const gl = canvas.getContext("webgl2", { premultipliedAlpha: false }) as WebGL2RenderingContext;
     if (!gl) return;
 
     // Predeclare resources to avoid TDZ in cleanup
@@ -264,7 +264,7 @@ function ShaderCanvas({
       const h = Math.max(1, Math.floor(cssH * dpr));
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w; canvas.height = h;
-        gl.viewport(0, 0, w, h);
+        gl?.viewport(0, 0, w, h);
       }
     }
     function scheduleSize() {

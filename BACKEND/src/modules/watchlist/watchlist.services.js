@@ -6,6 +6,7 @@ export const createWatchlist = async (name, userId) => {
     data: {
       name,
       userId,
+      status: "PLAN_TO_WATCH",
     },
   });
 };
@@ -24,15 +25,16 @@ export const addMovieToWatchlist = async (watchlistId, movieId, userId) => {
     throw new ApiError(403, "Unauthorized");
   }
 
-  const movie = await prisma.movie.findUnique({
-    where: { id: movieId },
+  let movie = await prisma.movie.findUnique({
+    where: { imdbID: movieId },
   });
 
   if (!movie) {
-    throw new ApiError(404, "Movie not found");
+    const { addMovie } = await import("../movie/movie.services.js");
+    movie = await addMovie(movieId);
   }
 
-  const exists = watchlist.movies.some((movie) => movie.id === movieId);
+  const exists = watchlist.movies.some((m) => m.id === movie.id);
 
   if (exists) {
     throw new ApiError(400, "Movie already in watchlist");
@@ -43,7 +45,7 @@ export const addMovieToWatchlist = async (watchlistId, movieId, userId) => {
     data: {
       movies: {
         connect: {
-          id: movieId,
+          id: movie.id,
         },
       },
     },
@@ -69,14 +71,14 @@ export const removeMovieFromWatchlist = async (
   }
 
   const movie = await prisma.movie.findUnique({
-    where: { id: movieId },
+    where: { imdbID: movieId },
   });
 
   if (!movie) {
     throw new ApiError(404, "Movie not found");
   }
 
-  const exists = watchlist.movies.some((movie) => movie.id === movieId);
+  const exists = watchlist.movies.some((m) => m.id === movie.id);
 
   if (!exists) {
     throw new ApiError(404, "Movie not present in watchlist");
@@ -87,7 +89,7 @@ export const removeMovieFromWatchlist = async (
     data: {
       movies: {
         disconnect: {
-          id: movieId,
+          id: movie.id,
         },
       },
     },
@@ -106,6 +108,11 @@ export const getAllWatchlists = async (userId, page = 1, limit = 10) => {
       orderBy: { createdAt: "desc" },
       skip: skip,
       take: safeLimit,
+      include: {
+        _count: {
+          select: { movies: true }
+        }
+      }
     }),
     prisma.watchlist.count({
       where: { userId },
@@ -138,22 +145,22 @@ export const getWatchlist = async (
   const safeLimit = Math.max(1, limit);
   const skip = (safePage - 1) * safeLimit;
 
-  // 1. Fetch watchlist basic info along with sliced movies, and count movies in parallel
-  const [watchlist, totalMovies] = await Promise.all([
-    prisma.watchlist.findUnique({
-      where: { id: watchlistId },
-      include: {
-        movies: {
-          skip: skip,
-          take: safeLimit,
-          // Add orderBy here if you want movies sorted by added date
-        },
+  // 1. Fetch watchlist basic info along with sliced movies, and count movies
+  const watchlist = await prisma.watchlist.findUnique({
+    where: { id: watchlistId },
+    include: {
+      movies: {
+        skip: skip,
+        take: safeLimit,
+        // Add orderBy here if you want movies sorted by added date
       },
-    }),
-    prisma.movie.count({
-      where: { watchlistId: watchlistId }, // Assumes movie model has watchlistId relation
-    }),
-  ]);
+      _count: {
+        select: { movies: true }
+      }
+    },
+  });
+
+  const totalMovies = watchlist ? watchlist._count.movies : 0;
 
   // 2. Route Protection Checks
   if (!watchlist) {
@@ -172,6 +179,7 @@ export const getWatchlist = async (
       id: watchlist.id,
       name: watchlist.name,
       userId: watchlist.userId,
+      status: watchlist.status,
       createdAt: watchlist.createdAt,
     },
     movies: watchlist.movies, // Contains only the 10 movies for this specific page
@@ -195,6 +203,11 @@ export const searchWatchlists = async (query, userId) => {
         mode: "insensitive",
       },
     },
+    include: {
+      _count: {
+        select: { movies: true }
+      }
+    }
   });
 };
 

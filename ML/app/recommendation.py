@@ -3,10 +3,20 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sklearn.metrics.pairwise import cosine_similarity
 
-# grab the db url, SQLAlchemy is picky and wants postgresql:// instead of postgres://
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+
+def clean_db_url(url: str):
+    if not url: return url
+    if url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+    parsed = urlparse(url)
+    qs = parse_qsl(parsed.query)
+    qs = [(k, v) for k, v in qs if k.lower() != 'pgbouncer']
+    return urlunparse(parsed._replace(query=urlencode(qs)))
+
+# grab the db url
 db_url = os.getenv("DATABASE_URL", "")
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+db_url = clean_db_url(db_url)
     
 engine = create_engine(db_url) if db_url else None
 

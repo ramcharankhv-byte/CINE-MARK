@@ -42,6 +42,7 @@ export function MovieCard({ movie }: MovieCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-110"
               onError={() => setPosterSrc("/no-poster.svg")}
+              unoptimized={true}
             />
           )}
         </Link>

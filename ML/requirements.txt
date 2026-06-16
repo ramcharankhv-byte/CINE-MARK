@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+groq
+duckduckgo-search
+pandas
+scikit-learn
+sqlalchemy
+psycopg2-binary
+python-dotenv
+supabase
+pydantic
+requests

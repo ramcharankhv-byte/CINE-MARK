@@ -4,6 +4,7 @@ export const secureHeaders = helmet({
   contentSecurityPolicy: false,
 
   crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
 
   crossOriginResourcePolicy: false,
 

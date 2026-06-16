@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/lib/supabaseClient";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { 
@@ -13,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import Fuse from "fuse.js";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { AddToWatchlistModal } from "@/components/watchlists/AddToWatchlistModal";
 
 const PLACEHOLDERS = [
   "e.g. A sci-fi movie about time travel that bends your mind...",
@@ -85,7 +89,16 @@ export default function DashboardPage() {
   // Sync internal state if URL changes natively
   useEffect(() => {
     if (initialRoute === 'landing') {
+      if (user) {
+        router.push('/home');
+      } else {
+        setIsSubmitted(false);
+      }
+    } else if (initialRoute === 'home') {
       setIsSubmitted(false);
+      setCurrentSessionId(undefined);
+      setChatMessages([]);
+      setSuggestedMovies([]);
     } else if (initialRoute === 'dashboard') {
       setIsSubmitted(true);
       setIsFullMode(false);
@@ -95,7 +108,7 @@ export default function DashboardPage() {
       setIsFullMode(true);
       setActiveTab("chat");
     }
-  }, [initialRoute]);
+  }, [initialRoute, user, router]);
 
   // Watchlist (bookmark) states
   const [bookmarkedIds, setBookmarkedIds] = useState<(number | string)[]>([]);
@@ -119,7 +132,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (currentSessionId && chatMessages.length === 0 && !isFetchingMovies) {
       setIsFetchingMovies(true);
-      fetch(`http://localhost:8000/api/chat/${currentSessionId}`)
+      fetch(`${process.env.NEXT_PUBLIC_ML_URL || "http://localhost:8000"}/api/chat/${currentSessionId}`)
         .then(res => res.json())
         .then(data => {
           if (data && data.length > 0) {
@@ -585,7 +598,8 @@ export default function DashboardPage() {
     const displayMsg = baseMsg || tagsText;
     
     setIsSubmitted(true);
-    if (!params.slug) {
+    const isActuallyHome = window.location.pathname === '/' || window.location.pathname === '/home';
+    if (isActuallyHome) {
       window.history.pushState({}, '', '/dashboard');
     }
     
@@ -596,16 +610,24 @@ export default function DashboardPage() {
     setIsFetchingMovies(true);
     
     try {
-      const res = await fetch("http://localhost:8000/api/chat", {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_ML_URL || "http://localhost:8000"}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ query: userMsg, session_id: currentSessionId })
       });
       const data = await res.json();
       
       if (!currentSessionId && data.session_id) {
         setCurrentSessionId(data.session_id);
-        window.history.pushState({}, '', `/chat/${data.session_id}`);
+        if (activeTab === "chat") {
+          window.history.pushState({}, '', `/chat/${data.session_id}`);
+        }
       }
       
       // Update Movies
@@ -1228,7 +1250,7 @@ export default function DashboardPage() {
                       const isBookmarked = bookmarkedIds.includes(item.id);
                       return (
                         <div 
-                          key={item.id} 
+                          key={`${item.id}-${idx}`} 
                           onClick={() => item.imdbID ? router.push(`/movies/${item.imdbID}`) : null}
                           className={cn(
                             "flex-none aspect-[2/3] rounded-2xl p-6 flex flex-col justify-between transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_15px_35px_rgba(0,0,0,0.6)] border border-white/10 relative group overflow-hidden",
@@ -1253,20 +1275,19 @@ export default function DashboardPage() {
                             <span className="text-[10px] bg-black/40 backdrop-blur-md text-emerald-400 border border-white/10 px-2.5 py-1 rounded-lg font-semibold tracking-wide shadow-sm">
                               {item.match} Match
                             </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleBookmark(item.id, item.title);
-                              }}
-                              className={cn(
-                                "p-2 rounded-lg border backdrop-blur-md transition-all cursor-pointer",
-                                isBookmarked 
-                                  ? "bg-white text-yellow-500 border-white shadow-[0_0_10px_rgba(234,179,8,0.3)]" 
-                                  : "bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-black/60"
-                              )}
-                            >
-                              <Star className={cn("w-3.5 h-3.5", isBookmarked ? "fill-current animate-[ping_0.3s_ease-in-out_1]" : "")} />
-                            </button>
+                            <AddToWatchlistModal movie={item as any} onSuccessCallback={() => toggleBookmark(item.id, item.title)}>
+                              <button
+                                onClick={(e) => e.stopPropagation()}
+                                className={cn(
+                                  "p-2 rounded-lg border backdrop-blur-md transition-all cursor-pointer",
+                                  isBookmarked 
+                                    ? "bg-white text-yellow-500 border-white shadow-[0_0_10px_rgba(234,179,8,0.3)]" 
+                                    : "bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-black/60"
+                                )}
+                              >
+                                <Star className={cn("w-3.5 h-3.5", isBookmarked ? "fill-current animate-[ping_0.3s_ease-in-out_1]" : "")} />
+                              </button>
+                            </AddToWatchlistModal>
                           </div>
 
                           {/* Removed Play Trailer Button overlay as requested */}
@@ -1274,7 +1295,7 @@ export default function DashboardPage() {
                           {/* Card Footer: Metadata and Title */}
                           <div className="bg-black/55 backdrop-blur-md rounded-xl p-4 border border-white/10 z-10 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-300">
                             <div className="flex gap-1.5 flex-wrap mb-1.5">
-                              {item.genres.map(genre => (
+                              {item.genres.map((genre: string) => (
                                 <span key={genre} className="text-[9px] bg-white/15 text-white/90 px-1.5 py-0.5 rounded-md font-medium tracking-wide">
                                   {genre}
                                 </span>
@@ -1356,18 +1377,20 @@ export default function DashboardPage() {
                                       {m.title}
                                     </h5>
                                     <p className="text-[10px] text-white/50 mt-1 line-clamp-1">{m.genre}</p>
-                                    <button 
-                                      onClick={(e) => { e.stopPropagation(); toggleBookmark(movieId, m.title); }}
-                                      className={cn(
-                                        "mt-2 text-[11px] flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all w-full font-medium",
-                                        isBookmarked 
-                                          ? "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30" 
-                                          : "bg-primary/20 text-primary-foreground hover:bg-primary/40"
-                                      )}
-                                    >
-                                      {isBookmarked ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
-                                      {isBookmarked ? "In Watchlist" : "Watch Later"}
-                                    </button>
+                                    <AddToWatchlistModal movie={m as any} onSuccessCallback={() => toggleBookmark(movieId, m.title)}>
+                                      <button 
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={cn(
+                                          "mt-2 text-[11px] flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md transition-all w-full font-medium",
+                                          isBookmarked 
+                                            ? "bg-yellow-500/20 text-yellow-500 hover:bg-yellow-500/30" 
+                                            : "bg-primary/20 text-primary-foreground hover:bg-primary/40"
+                                        )}
+                                      >
+                                        {isBookmarked ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                                        {isBookmarked ? "In Watchlist" : "Watch Later"}
+                                      </button>
+                                    </AddToWatchlistModal>
                                   </div>
                                 </div>
                               )})}
