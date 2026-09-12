@@ -1,23 +1,33 @@
 services:
   # Node.js Express API Backend
+  #
+  # The ML service (ML/) is intentionally NOT deployed. Its source is kept in
+  # the repository but it is dormant; see ML/README.md.
   - type: web
     name: cine-mark-backend
     env: node
     plan: free
     rootDir: Backend
-    buildCommand: npm install && npx prisma generate
+    buildCommand: npm ci && npx prisma generate
     startCommand: node src/server.js
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PRISMA_CLIENT_ENGINE_TYPE
         value: library
-      # These variables will need to be pasted into the Render Dashboard manually for security
+      # Set these in the Render dashboard; they are never committed.
+      # DATABASE_URL must be the pooled Neon endpoint (hostname contains
+      # "-pooler") with sslmode=require&pgbouncer=true.
       - key: DATABASE_URL
         sync: false
-      - key: GOOGLE_CLIENT_ID
+      # DIRECT_URL must be the unpooled Neon endpoint with sslmode=require.
+      # Required even at build time, because `prisma generate` reads it.
+      - key: DIRECT_URL
         sync: false
-      - key: JWT_SECRET
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
         sync: false
       - key: API_KEY
         sync: false
@@ -26,21 +36,4 @@ services:
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
       - key: CORS_ORIGIN
-        sync: false
-
-  # Python FastAPI ML Engine
-  - type: web
-    name: cine-mark-ml
-    env: python
-    plan: free
-    rootDir: ML
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
-    envVars:
-      # These variables will need to be pasted into the Render Dashboard manually for security
-      - key: GROQ_API_KEYS
-        sync: false
-      - key: UPSTASH_VECTOR_REST_URL
-        sync: false
-      - key: UPSTASH_VECTOR_REST_TOKEN
         sync: false

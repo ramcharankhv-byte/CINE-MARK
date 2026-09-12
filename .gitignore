@@ -1,15 +1,25 @@
 node_modules
-# Keep environment variables out of version control
+
+# Environment variables - never commit real values
 .env
+.env.*
+!.env.example
 
-/generated/prisma
-09-INTERVIEW-GUIDE.md
-10-PATTERNS-LIBRARY.md
-11-DESIGN-DECISIONS.md
-12-IMPROVEMENTS-ROADMAP.md
-13-LEARNING-SUMMARY.md
+# Prisma: the client is generated into node_modules at build time
+Backend/src/generated/
 
+# Next.js
+.next/
+out/
+.vercel
 
+# Python (ML service is dormant but its tooling may still be run locally)
 __pycache__/
 *.pyc
+venv/
+.venv/
 chroma_storage/
+
+# Editor / OS
+.DS_Store
+*.tsbuildinfo

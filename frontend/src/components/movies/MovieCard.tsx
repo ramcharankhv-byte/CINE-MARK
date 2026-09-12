@@ -51,7 +51,7 @@ export function MovieCard({ movie }: MovieCardProps) {
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         
         {/* Rating Badge */}
-        {movie.imdbRating && movie.imdbRating !== "N/A" && (
+        {typeof movie.imdbRating === "number" && (
           <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs font-semibold text-white backdrop-blur-md ring-1 ring-white/20">
             <span className="text-yellow-500">★</span> {movie.imdbRating}
           </div>
