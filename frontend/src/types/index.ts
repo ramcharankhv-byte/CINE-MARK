@@ -6,19 +6,28 @@ export interface User {
 }
 
 export interface Movie {
-  id: string;
+  /**
+   * Database id. Absent on search results, which come straight from OMDB and
+   * are only persisted once a movie is opened or added to a watchlist.
+   */
+  id?: string;
   imdbID: string;
   title: string;
   year: string;
   type: string;
-  poster: string;
-  genre?: string;
-  director?: string;
-  writer?: string;
-  actors?: string;
-  plot?: string;
-  country?: string;
-  imdbRating?: string;
+  /** Null when OMDB has no artwork; callers fall back to /no-poster.svg. */
+  poster: string | null;
+  genre?: string | null;
+  director?: string | null;
+  writer?: string | null;
+  actors?: string | null;
+  cast?: string | null;
+  plot?: string | null;
+  country?: string | null;
+  /** Prisma stores this as a Float, so it arrives as a number, not a string. */
+  imdbRating?: number | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Watchlist {

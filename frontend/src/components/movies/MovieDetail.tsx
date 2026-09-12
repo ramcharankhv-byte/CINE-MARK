@@ -55,7 +55,7 @@ export function MovieDetail({ movie }: { movie: Movie }) {
             {movie.title}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            {movie.imdbRating && movie.imdbRating !== "N/A" && (
+            {typeof movie.imdbRating === "number" && (
               <Badge variant="secondary" className="gap-1 px-2 py-1 text-base">
                 <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                 {movie.imdbRating}
